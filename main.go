@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"dada/inline"
 	"log"
 	"os"
 	"strings"
@@ -40,12 +40,12 @@ func main() {
 			}
 
 			if strings.Contains(query, "/") {
-				result, err = Repository(ghClient, ctx, query)
+				result, err = inline.Repository(ghClient, ctx, query)
 				if err != nil {
 					continue
 				}
 			} else {
-				result, err = Profile(ghClient, ctx, query)
+				result, err = inline.Profile(ghClient, ctx, query)
 				if err != nil {
 					continue
 				}
@@ -54,73 +54,24 @@ func main() {
 			err = bot.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 				InlineQueryID: iq.ID,
 				Results:       []telego.InlineQueryResult{result},
-				CacheTime:     300,
+				CacheTime:     60,
 			})
 
 			if err != nil {
 				notFoundResult := tu.ResultArticle(
 					"notfound_"+query,
-					"❌ Пользователь не найден",
+					"❌ User not found",
 					tu.TextMessage(
-						"Пользователь с таким именем не существует на GitHub.",
+						"User "+query+" not found.",
 					),
 				)
 				bot.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 					InlineQueryID: iq.ID,
 					Results:       []telego.InlineQueryResult{notFoundResult},
-					CacheTime:     300,
+					CacheTime:     1,
 				})
 				continue
 			}
 		}
 	}
-}
-
-func Repository(ghClient *github.Client, ctx context.Context, query string) (*telego.InlineQueryResultArticle, error) {
-	pathToRepo := strings.Split(query, "/")
-	repo, _, err := ghClient.Repositories.Get(ctx, pathToRepo[0], pathToRepo[1])
-	if err != nil {
-		log.Printf("Ошибка GitHub API для %q: %v", query, err)
-		return nil, err
-	}
-
-	cardStatsURL := fmt.Sprintf("https://pixel-profile.vercel.app/api/github-stats?username=%v", query)
-
-	profileInfo := fmt.Sprintf(
-		"%v", repo.GetFullName(),
-	)
-
-	result := tu.ResultArticle(
-		"repo_stats_"+query,
-		"Статистика для репозитория: "+query,
-		tu.TextMessage(
-			profileInfo,
-		).WithLinkPreviewOptions(&telego.LinkPreviewOptions{URL: cardStatsURL}).WithParseMode(telego.ModeMarkdown),
-	)
-
-	return result, nil
-}
-
-func Profile(ghClient *github.Client, ctx context.Context, query string) (*telego.InlineQueryResultArticle, error) {
-	user, _, err := ghClient.Users.Get(ctx, query)
-	if err != nil {
-		log.Printf("Ошибка GitHub API для %q: %v", query, err)
-		return nil, err
-	}
-
-	cardStatsURL := fmt.Sprintf("https://pixel-profile.vercel.app/api/github-stats?username=%v", query)
-
-	profileInfo := fmt.Sprintf(
-		"%v", user.GetName(),
-	)
-
-	result := tu.ResultArticle(
-		"stats_"+query,
-		"Статистика для пользователя: "+query,
-		tu.TextMessage(
-			profileInfo,
-		).WithLinkPreviewOptions(&telego.LinkPreviewOptions{URL: cardStatsURL}).WithParseMode(telego.ModeMarkdown),
-	)
-
-	return result, nil
 }
