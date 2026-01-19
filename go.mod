@@ -3,6 +3,7 @@ module dada
 go 1.25.5
 
 require (
+	github.com/google/go-github/v60 v60.0.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mymmrac/telego v1.5.0
 )
@@ -13,6 +14,7 @@ require (
 	github.com/bytedance/sonic v1.14.2 // indirect
 	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/grbit/go-json v0.11.0 // indirect
 	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
