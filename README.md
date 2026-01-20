@@ -2,7 +2,7 @@
 
 A Telegram bot that provides GitHub profile and repository statistics via inline queries.
 
-![Example](/assets/image.png)
+![Example](/assets/image.jpg)
 
 ## Features
 
