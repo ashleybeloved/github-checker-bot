@@ -22,7 +22,7 @@ func main() {
 
 	ghClient := github.NewClient(nil).WithAuthToken(githubToken)
 
-	bot, err := telego.NewBot(botToken, telego.WithDefaultDebugLogger())
+	bot, err := telego.NewBot(botToken)
 	if err != nil {
 		log.Fatal(err)
 	}

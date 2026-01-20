@@ -2,6 +2,8 @@
 
 A Telegram bot that provides GitHub profile and repository statistics via inline queries.
 
+![Example](/assets/image.png)
+
 ## Features
 
 - **Profile Search**: Type `@bot username` (e.g., `@your_bot octocat`).
