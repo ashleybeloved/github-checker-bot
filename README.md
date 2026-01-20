@@ -13,8 +13,8 @@ A Telegram bot that provides GitHub profile and repository statistics via inline
 ## Tech Stack
 
 - **Go** (Golang)
-- [telego](github.com/mymmrac/telego) — Telegram Bot API library
-- [go-github](github.com/google/go-github) — GitHub API client
+- [telego](https://github.com/mymmrac/telego) — Telegram Bot API library
+- [go-github](https://github.com/google/go-github) — GitHub API client
 
 ## Setup
 
