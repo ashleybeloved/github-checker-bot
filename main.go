@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"dada/inline"
+	"fmt"
+	"html"
 	"log"
 	"os"
 	"strings"
@@ -22,7 +24,7 @@ func main() {
 
 	ghClient := github.NewClient(nil).WithAuthToken(githubToken)
 
-	bot, err := telego.NewBot(botToken)
+	bot, err := telego.NewBot(botToken, telego.WithDefaultDebugLogger())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,6 +32,18 @@ func main() {
 	updates, _ := bot.UpdatesViaLongPolling(ctx, nil)
 
 	for update := range updates {
+		if update.Message != nil && update.Message.Text != "" {
+			msg := tu.Message(
+				update.Message.Chat.ChatID(),
+				fmt.Sprintf("<b>Hello, %s!</b>\n\nI only work in inline mode, to call inline write:\n<code>@%s &lt;username&gt; or &lt;username/repo&gt;</code>",
+					html.EscapeString(update.Message.From.FirstName),
+					bot.Username(),
+				),
+			).WithParseMode(telego.ModeHTML)
+
+			bot.SendMessage(ctx, msg)
+		}
+
 		if update.InlineQuery != nil {
 			var result *telego.InlineQueryResultArticle
 			iq := update.InlineQuery

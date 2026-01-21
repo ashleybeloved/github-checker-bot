@@ -3,6 +3,7 @@ package inline
 import (
 	"context"
 	"fmt"
+	"html"
 	"log"
 	"strings"
 
@@ -20,32 +21,43 @@ func Repository(ghClient *github.Client, ctx context.Context, query string) (*te
 		return nil, err
 	}
 
-	repoInfo := fmt.Sprintf("*%v*\n\n", query)
+	safeQuery := html.EscapeString(query)
+	safeDesc := html.EscapeString(repo.GetDescription())
+	safeLang := html.EscapeString(repo.GetLanguage())
 
-	if desc := repo.GetDescription(); desc != "" {
-		repoInfo = fmt.Sprintf(repoInfo+"📝 *Description:* %s\n\n", desc)
+	repoInfo := fmt.Sprintf("<b>%s</b>\n\n", safeQuery)
+
+	if safeDesc != "" {
+		repoInfo += fmt.Sprintf("📝 <b>Description:</b> %s\n\n", safeDesc)
 	}
 
-	repoInfo = fmt.Sprintf(repoInfo+"⭐ *Stars:* %d\n🍴 *Forks:* %d\n👁️ *Subscribers:* %d\n\n",
+	repoInfo += fmt.Sprintf(
+		"⭐ <b>Stars:</b> %d\n"+
+			"🍴 <b>Forks:</b> %d\n"+
+			"👁️ <b>Subscribers:</b> %d\n\n",
 		repo.GetStargazersCount(),
 		repo.GetForksCount(),
-		repo.GetSubscribersCount())
+		repo.GetSubscribersCount(),
+	)
 
-	if lang := repo.GetLanguage(); lang != "" {
-		repoInfo = fmt.Sprintf(repoInfo+"💻 *Top Language:* %v\n", lang)
+	if safeLang != "" {
+		repoInfo += fmt.Sprintf("💻 <b>Top Language:</b> %s\n", safeLang)
 	}
 
-	repoInfo = fmt.Sprintf(repoInfo+"📅 Created at: %s\n\n[Repository](%s) | [Releases](%s)",
+	repoInfo += fmt.Sprintf(
+		"📅 <b>Created at:</b> %s\n\n"+
+			`<a href="%s">Repository</a> | <a href="%s">Releases</a>`,
 		humanize.Time(repo.GetCreatedAt().Time),
-		"https://github.com/"+query,
-		"https://github.com/"+query+"/releases")
+		html.EscapeString("https://github.com/"+query),
+		html.EscapeString("https://github.com/"+query+"/releases"),
+	)
 
 	result := tu.ResultArticle(
 		"repo_stats_"+query,
 		"Repository: "+query,
 		tu.TextMessage(
 			repoInfo,
-		).WithParseMode(telego.ModeMarkdown),
+		).WithParseMode(telego.ModeHTML),
 	)
 
 	return result, nil
@@ -59,34 +71,50 @@ func Profile(ghClient *github.Client, ctx context.Context, query string) (*teleg
 	}
 
 	cardStatsURL := "https://github-streak-generator-moranr123-production.up.railway.app/api/streak/card/" + query + "?theme=58a6ff&fontSize=large&cardWidth=500&_t=1768842469398"
-	profileInfo := fmt.Sprintf("*%s*\n\n", query)
+	safeName := html.EscapeString(user.GetName())
+	safeBio := html.EscapeString(strings.TrimSpace(user.GetBio()))
+	safeLocation := html.EscapeString(user.GetLocation())
 
-	if name := user.GetName(); name != "" {
-		profileInfo = fmt.Sprintf(profileInfo+"*👤 Name: *%s\n", name)
+	profileInfo := fmt.Sprintf("<b>%s</b>\n\n", html.EscapeString(query))
+
+	if safeName != "" {
+		profileInfo += fmt.Sprintf("<b>👤 Name:</b> %s\n", safeName)
 	}
 
-	if bio := user.GetBio(); bio != "" {
-		profileInfo = fmt.Sprintf(profileInfo+"*📝 Bio: *%s\n", strings.TrimSpace(bio))
+	if safeBio != "" {
+		profileInfo += fmt.Sprintf("<b>📝 Bio:</b> %s\n", safeBio)
 	}
 
-	if location := user.GetLocation(); location != "" {
-		profileInfo = fmt.Sprintf(profileInfo+"*📍 Location: *%s\n\n", location)
+	if safeLocation != "" {
+		profileInfo += fmt.Sprintf("<b>📍 Location:</b> %s\n\n", safeLocation)
 	}
 
-	profileInfo = fmt.Sprintf(profileInfo+"*👥 Followers:* %d\n*📦 Repositories: *%d\n*📅 Created at: *%v\n\n",
+	profileInfo += fmt.Sprintf(
+		"<b>👥 Followers:</b> %d\n<b>📦 Repositories:</b> %d\n<b>📅 Created at:</b> %v\n\n",
 		user.GetFollowers(),
 		user.GetPublicRepos(),
 		humanize.Time(user.GetCreatedAt().Time),
 	)
 
-	profileInfo = fmt.Sprintf(profileInfo+"[Profile](%v) | [Repositories](%v)", "https://github.com/"+query, "https://github.com/"+query+"?tab=repositories")
+	// Формируем ссылки (без лишних пробелов!)
+	githubProfileURL := "https://github.com/" + query
+	githubReposURL := githubProfileURL + "?tab=repositories"
+
+	profileInfo += fmt.Sprintf(
+		`<a href="%s">Profile</a> | <a href="%s">Repositories</a>`,
+		html.EscapeString(githubProfileURL),
+		html.EscapeString(githubReposURL),
+	)
 
 	result := tu.ResultArticle(
 		"stats_"+query,
 		"Profile: "+query,
-		tu.TextMessage(
-			profileInfo,
-		).WithLinkPreviewOptions(&telego.LinkPreviewOptions{URL: cardStatsURL, ShowAboveText: false}).WithParseMode(telego.ModeMarkdown),
+		tu.TextMessage(profileInfo).
+			WithLinkPreviewOptions(&telego.LinkPreviewOptions{
+				URL:           cardStatsURL,
+				ShowAboveText: false,
+			}).
+			WithParseMode(telego.ModeHTML),
 	)
 
 	return result, nil
