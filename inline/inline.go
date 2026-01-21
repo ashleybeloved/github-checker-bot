@@ -96,7 +96,6 @@ func Profile(ghClient *github.Client, ctx context.Context, query string) (*teleg
 		humanize.Time(user.GetCreatedAt().Time),
 	)
 
-	// Формируем ссылки (без лишних пробелов!)
 	githubProfileURL := "https://github.com/" + query
 	githubReposURL := githubProfileURL + "?tab=repositories"
 
