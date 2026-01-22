@@ -68,7 +68,7 @@ func main() {
 			err = bot.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 				InlineQueryID: iq.ID,
 				Results:       []telego.InlineQueryResult{result},
-				CacheTime:     60,
+				CacheTime:     300,
 			})
 
 			if err != nil {
