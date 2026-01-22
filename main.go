@@ -76,8 +76,8 @@ func main() {
 					"notfound_"+query,
 					"❌ User not found",
 					tu.TextMessage(
-						"User "+query+" not found.",
-					),
+						"User or repository not found",
+					).WithParseMode(telego.ModeHTML),
 				)
 				bot.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 					InlineQueryID: iq.ID,
