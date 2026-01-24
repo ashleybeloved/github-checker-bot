@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"log"
+	"math/rand"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -70,7 +71,7 @@ func Profile(ghClient *github.Client, ctx context.Context, query string) (*teleg
 		return nil, err
 	}
 
-	cardStatsURL := "https://github-streak-generator-moranr123-production.up.railway.app/api/streak/card/" + query + "?theme=58a6ff&fontSize=large&cardWidth=500&_t=1768842469398"
+	cardStatsURL := fmt.Sprintf("https://github-streak-generator-moranr123-production.up.railway.app/api/streak/card/%v?theme=58a6ff&fontSize=large&cardWidth=500&_t=%v", query, rand.Intn(100000))
 	safeName := html.EscapeString(user.GetName())
 	safeBio := html.EscapeString(strings.TrimSpace(user.GetBio()))
 	safeLocation := html.EscapeString(user.GetLocation())
