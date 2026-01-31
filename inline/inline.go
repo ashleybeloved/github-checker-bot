@@ -18,7 +18,6 @@ func Repository(ghClient *github.Client, ctx context.Context, query string) (*te
 	pathToRepo := strings.Split(query, "/")
 	repo, _, err := ghClient.Repositories.Get(ctx, pathToRepo[0], pathToRepo[1])
 	if err != nil {
-		log.Printf("Ошибка GitHub API для %q: %v", query, err)
 		return nil, err
 	}
 
